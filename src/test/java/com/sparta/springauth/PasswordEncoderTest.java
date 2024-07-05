@@ -16,7 +16,7 @@ public class PasswordEncoderTest {
     @Autowired // 스프링 컨텍스트에서 PasswordEncoder 빈(Bean)을 주입 받음
     PasswordEncoder passwordEncoder;
 
-    @Test
+    @Test // JUnit 테스트 메서드임을 선언
     @DisplayName("수동 등록한 passwordEncoder를 주입 받아와 문자열 암호화") // 테스트의 의도를 설명하는 어노테이션
     void test1() { // 해당 메서드는 비밀번호 암호화와 비교를 테스트
         String password = "Robbie's password"; // 암호화할 원본 비밀번호 문자열
