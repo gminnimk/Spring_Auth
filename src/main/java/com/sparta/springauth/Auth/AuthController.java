@@ -1,5 +1,8 @@
 package com.sparta.springauth.Auth;
 
+import com.sparta.springauth.entity.UserRoleEnum;
+import com.sparta.springauth.jwt.JwtUtil;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -12,8 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
+
 /*
-✅ 인증 관련 작업을 처리하는 클래스, 쿠키와 세션을 이용하여 사용자 인증 정보를 관리.
+✅ 인증 관련 작업을 처리하는 클래스,
+
+    ➕ 쿠키와 세션을 이용하여 사용자 인증 정보를 관리.
+
+    ➕ JWT를 이용한 인증 작업 처리, JWT를 생성하고 검증하는 기능 제공.
 
     ➡️ 쿠키와 세션은 모두 클라이언트와 서버 간의 상태 정보를 유지하기 위한 기술.
 
@@ -31,6 +39,10 @@ import java.net.URLEncoder;
             - 세션은 쿠키보다 보안성이 높음 => 데이터가 서버에 저장되고, 시용자는 세션 데이터에 직접 접근불가.
 
 
+    ➡️ JWT : 인증에 필요한 정보들을 암호화시킨 토큰을 의미.
+
+            - 인증과 정보 교환에 주로 사용.
+
     📢 요약
             - 데이터 저장 위치: 쿠키는 클라이언트에, 세션은 서버에 저장됩니다.
             - 보안성: 세션은 쿠키보다 보안성이 높습니다.
@@ -45,6 +57,13 @@ public class AuthController {
     // 인증 헤더의 이름을 상수로 선언, 이 이름은 쿠키와 세션에서 사용됨.
     public static final String AUTHORIZATION_HEADER = "Authorization";
 
+    // JwtUtil 객체를 AuthController 클래스의 필드로 선언. (JwtUtil은 JWT을 생성하고 검증하는 유틸리티 클래스.)
+    private final JwtUtil jwtUtil;
+
+    // 선언한 필드를 생성자를 통해서 초기화.
+    public AuthController(JwtUtil jwtUtil) {
+        this.jwtUtil = jwtUtil;
+    }
 
     /*
     /api/create-cookie 경로로 GET 요청이 오면 createCookie 메소드를 실행합니다.
@@ -120,4 +139,53 @@ public class AuthController {
             throw new RuntimeException(e.getMessage());
         }
     }
+
+
+
+    // ➡️ JWT 테스트
+
+    /*
+    /create-jwt 경로로 GET 요청이 오면 createJwt 메소드를 실행합니다.
+    이 메소드는 JwtUtil의 createToken 메소드를 호출하여 JWT를 생성하고,
+    addJwtToCookie 메소드를 호출하여 이 토큰을 쿠키에 저장합니다.
+     */
+    @GetMapping("/create-jwt")
+    public String createJwt(HttpServletResponse res) {
+        // Jwt 생성
+        String token = jwtUtil.createToken("Robbie", UserRoleEnum.USER);
+
+        // Jwt 쿠키 저장
+        jwtUtil.addJwtToCookie(token, res);
+
+        return "createJwt : " + token;
+    }
+
+
+    /*
+    /get-jwt 경로로 GET 요청이 오면 getJwt 메소드를 실행합니다.
+    이 메소드는 요청에서 JWT를 가져와 검증하고, 토큰에서 사용자 정보를 추출합니다.
+     */
+    @GetMapping("/get-jwt")
+    public String getJwt(@CookieValue(JwtUtil.AUTHORIZATION_HEADER) String tokenValue) {
+        // JWT 토큰 substring
+        String token = jwtUtil.substringToken(tokenValue);
+
+        // 토큰 검증
+        if(!jwtUtil.validateToken(token)){
+            throw new IllegalArgumentException("Token Error");
+        }
+
+        // 토큰에서 사용자 정보 가져오기
+        Claims info = jwtUtil.getUserInfoFromToken(token);
+        // 사용자 username
+        String username = info.getSubject();
+        System.out.println("username = " + username);
+        // 사용자 권한
+        String authority = (String) info.get(JwtUtil.AUTHORIZATION_KEY);
+        System.out.println("authority = " + authority);
+
+        return "getJwt : " + username + ", " + authority;
+    }
 }
+
+
