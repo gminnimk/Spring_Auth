@@ -1,9 +1,12 @@
 package com.sparta.springauth.service;
 
+import com.sparta.springauth.dto.LoginRequestDto;
 import com.sparta.springauth.dto.SignupRequestDto;
 import com.sparta.springauth.entity.User;
 import com.sparta.springauth.entity.UserRoleEnum;
+import com.sparta.springauth.jwt.JwtUtil;
 import com.sparta.springauth.repository.UserRepository;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +26,13 @@ public class UserService {
 
     private final UserRepository userRepository; // 사용자 정보를 DB에서 조회하거나 저장하는 인스턴스
     private final PasswordEncoder passwordEncoder; // 비밀번호를 암호화하는 데 사용되는 인스턴스
+    private final JwtUtil jwtUtil; // jwtUtil 클래스의 인스턴스를 참조하는 필드. (JwtUtil 클래스는 JWT를 생성하고 검증하는 기능)
 
-
-    // 아래 생성자를 통해 UserRepository와 PasswordEncoder를 주입.
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    // 아래 생성자를 통해 UserRepository와 PasswordEncoder, JwtUtil 주입.
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtil = jwtUtil;
     }
 
 
@@ -79,5 +83,36 @@ public class UserService {
         // User 객체를 생성하고 userRepository.save(user)를 호출하여 사용자를 DB에 저장.
         User user = new User(username, password, email, role);
         userRepository.save(user);
+    }
+
+
+    // login 메서드는 사용자 로그인을 처리, LoginRequestDto를 인자로 받아 사용자 이름과 비밀번호를 가져와서 검증하고, JWT를 생성하여 쿠키에 저장하는 기능.
+    public void login(LoginRequestDto requestDto, HttpServletResponse res) {
+        String username = requestDto.getUsername();
+        String password = requestDto.getPassword();
+
+
+        // 사용자 확인
+        // userRepository.findByUsername(username)을 호출하여 사용자 이름으로 사용자를 조회.
+        // 만약 해당 사용자가 없다면, 예외를 발생시킴.
+        User user = userRepository.findByUsername(username).orElseThrow(
+                () -> new IllegalArgumentException("등록된 사용자가 없습니다.")
+        );
+
+
+        // 비밀번호 확인
+        // 입력받은 비밀번호와 저장된 비밀번호를 비교.
+        // passwordEncoder.matches(password, user.getPassword())를 호출하여 입력받은 비밀번호와 저장된 비밀번호가 일치하는지 확인.
+        // 만약 비밀번호가 일치하지 않다면, 예외를 발생.
+        if(!passwordEncoder.matches(password, user.getPassword())) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+
+        // JWT 생성 및 쿠키에 저장 후 Response 객체에 추가
+        // jwtUtil.createToken(user.getUsername(), user.getRole())을 호출하여 JWT를 생성,
+        // 생성된 JWT는 jwtUtil.addJwtToCookie(token, res)를 호출하여 쿠키에 저장되고, 이 쿠키는 HttpServletResponse 객체에 추가.
+        String token = jwtUtil.createToken(user.getUsername(), user.getRole());
+        jwtUtil.addJwtToCookie(token, res);
     }
 }
