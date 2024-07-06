@@ -24,7 +24,8 @@ import java.io.IOException;
 @Slf4j(topic = "LoggingFilter")
 
 // Spring에서 이 클래스를 빈으로 등록.
-@Component
+// @Component // SpringSecurity 를 사용하기 위해 주석처리.
+// (Spring Security는 Filter 기반으로 동작을 하기 때문에 기존에 만들었던 Filter 로 인해 방해가 될 수 있기 때문.)
 
 // 이 필터의 실행 순서를 지정, 숫자가 낮을수록 먼저 실행.
 @Order(1)

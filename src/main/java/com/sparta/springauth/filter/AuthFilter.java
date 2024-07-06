@@ -24,7 +24,7 @@ import java.io.IOException;
 @Slf4j(topic = "AuthFilter")
 
 // Spring에서 이 클래스를 빈으로 등록.
-@Component
+// @Component // SpringSecurity 를 사용하기 위해 주석처리.
 
 // 이 필터의 실행 순서를 지정. 숫자가 낮을수록 먼저 실행.
 @Order(2)
