@@ -54,18 +54,19 @@ public class UserController {
     }
 
 
-    // @PostMapping 어노테이션을 사용하여 HTTP POST 요청이 "/api/user/login" URL로 들어올 때 이 메소드를 실행하도록 함.
-    // LoginRequestDto 객체로 변환되어 이 메소드에 전달이 되고 userService.login(request, res); 코드를 통해 로그인 처리.
-    @PostMapping("/user/login")
-    public String login(LoginRequestDto requestDto, HttpServletResponse res) {
-        try {
-            // UserService의 login 메소드를 호출하여 로그인을 처리, 이 메소드는 사용자의 로그인 요청 정보를 인자로 받아 처리하며,
-            // 로그인 성공 시 JWT 토큰을 생성하고 이를 응답 헤더에 추가.
-            userService.login(requestDto, res);
-        } catch (Exception e) {
-            // 로그인 처리 중 예외가 발생하면, 에러 쿼리 파라미터와 함께 로그인 페이지로 리다이렉트.
-            return "redirect:/api/user/login-page?error";
-        }
-        return "redirect:/"; // 로그인이 성공적으로 처리되면, 메인 페이지("/")로 리다이렉트.
-    }
+    // Spring Security를 이용하여 Filter에서 처리하기 때문에 주석처리.
+//    // @PostMapping 어노테이션을 사용하여 HTTP POST 요청이 "/api/user/login" URL로 들어올 때 이 메소드를 실행하도록 함.
+//    // LoginRequestDto 객체로 변환되어 이 메소드에 전달이 되고 userService.login(request, res); 코드를 통해 로그인 처리.
+//    @PostMapping("/user/login")
+//    public String login(LoginRequestDto requestDto, HttpServletResponse res) {
+//        try {
+//            // UserService의 login 메소드를 호출하여 로그인을 처리, 이 메소드는 사용자의 로그인 요청 정보를 인자로 받아 처리하며,
+//            // 로그인 성공 시 JWT 토큰을 생성하고 이를 응답 헤더에 추가.
+//            userService.login(requestDto, res);
+//        } catch (Exception e) {
+//            // 로그인 처리 중 예외가 발생하면, 에러 쿼리 파라미터와 함께 로그인 페이지로 리다이렉트.
+//            return "redirect:/api/user/login-page?error";
+//        }
+//        return "redirect:/"; // 로그인이 성공적으로 처리되면, 메인 페이지("/")로 리다이렉트.
+//    }
 }
