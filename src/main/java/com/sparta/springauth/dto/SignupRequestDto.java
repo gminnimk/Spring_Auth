@@ -2,6 +2,7 @@ package com.sparta.springauth.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -22,7 +23,9 @@ public class SignupRequestDto {
     private String username;
     @NotBlank
     private String password;
-    @Email
+//    @Email
+    // 3주차 숙제 : @Pattern 사용해서 @Email 대체
+    @Pattern(regexp = "^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")
     @NotBlank
     private String email;
 
