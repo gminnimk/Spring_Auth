@@ -1,15 +1,16 @@
 package com.sparta.springauth.controller;
 
+import com.sparta.springauth.dto.ProductRequestDto;
 import com.sparta.springauth.entity.User;
 import com.sparta.springauth.entity.UserRoleEnum;
 import com.sparta.springauth.security.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 
 
 /*
@@ -55,5 +56,23 @@ public class ProductController {
         }
 
         return "redirect:/";
+    }
+
+
+
+    // /validation 경로로 들어오는 POST 요청을 아래 메서드가 처리.
+    @PostMapping("/validation")
+    // 메서드의 반환값을 HTTP 응답 본문에 직접 작성하도록 지시.
+    // 반환된 객체가 자동으로 JSON으로 변환되어 클라이언트에게 전송.
+    @ResponseBody
+
+    // @RequestBody : HTTP 요청 본문의 JSON 데이터를 ProductRequestDto 객체로 변환.
+    // @Vaild : 객체의 유효성 검사를 수행.
+    // 여기서는 ProductRequestDto 클래스에 정의된 validation 어노테이션들(예: @NotNull, @Size 등)을 기반으로 합니다.
+    // 유효성 검사에 실패 시, 메서드 실행 전 예외 발생.
+    public ProductRequestDto testValid(@RequestBody @Valid ProductRequestDto requestDto) {
+        // 유효성 검사를 통과한 ProductRequestDto 객체를 그대로 반환
+        // 이 객체는 JSON 형태로 변환되어 클라이언트에게 응답으로 전송
+        return requestDto;
     }
 }
