@@ -33,6 +33,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration // 이 클래스가 Spring 설정 클래스임을 표시
 @EnableWebSecurity // Spring Security를 활성화하여 보안 기능을 사용할 수 있도록 함
+@EnableGlobalMethodSecurity(securedEnabled = true) // @Secured 애너테이션 활성화 방법
 public class WebSecurityConfig {
 
     private final JwtUtil jwtUtil; // JWT 토큰 관련
@@ -118,9 +119,22 @@ public class WebSecurityConfig {
         jwtAuthorizationFilter()는 jwtAuthenticationFilter()보다 먼저 실행됨.
         */
 
+
+        // 접근 불가 페이지
+
+        // exceptionHandling 메서드는 예외 처리를 구성하는 메서드
+        http.exceptionHandling((exceptionHandling) ->
+                        exceptionHandling
+                                // "접근 불가" 페이지 URL 설정
+                                .accessDeniedPage("/forbidden.html")
+                // .accessDeniedPage("/forbidden.html")는 접근이 거부된 경우 사용자를 리다이렉트할 페이지를 설정
+                // 사용자가 인가되지 않은 리소스에 접근하려고 시도했을 때 "/forbidden.html"로 리다이렉트
+
+        );
+
+
+        // http.build()는 설정된 HttpSecurity 객체를 반환합니다.
         // 구성된 보안 필터 체인을 반환. 이 필터 체인이 애플리케이션의 보안 설정을 담당.
         return http.build();
     }
 }
-
-
