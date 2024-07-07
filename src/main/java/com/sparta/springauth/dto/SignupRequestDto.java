@@ -1,5 +1,7 @@
 package com.sparta.springauth.dto;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,8 +18,12 @@ import lombok.Setter;
 public class SignupRequestDto {
 
     // 사용자 등록에 필요한 정보를 나타내는 필드.
+    @NotBlank
     private String username;
+    @NotBlank
     private String password;
+    @Email
+    @NotBlank
     private String email;
 
     // admin 필드는 사용자가 관리자인지 아닌지를 나타냄, 기본값은 false(관리자 X)
@@ -26,3 +32,5 @@ public class SignupRequestDto {
     // 관리자 등록을 위한 토큰, 기본값은 빈 문자열
     private String adminToken = "";
 }
+
+

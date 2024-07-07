@@ -4,17 +4,24 @@ import com.sparta.springauth.dto.LoginRequestDto;
 import com.sparta.springauth.dto.SignupRequestDto;
 import com.sparta.springauth.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import java.util.List;
 
 
 /*
 ✅ 스프링 MVC 컨트롤러, 사용자 관련 요청을 처리하는 역할.
  */
-
-
+// Lombok 라이브러리에서 제공하는 어노테이션으로, 클래스에 로깅 기능을 쉽게 추가할 수 있게 함.
+// 별도로 로깅 인스턴스를 생성하지 않고도 로그를 기록할 수 있음.
+@Slf4j
 @Controller
 @RequestMapping("/api") // @RequestMapping 어노테이션을 사용하여 이 컨트롤러의 모든 매핑이 "/api"로 시작하도록.
 public class UserController {
@@ -45,7 +52,24 @@ public class UserController {
     // @PostMapping 어노테이션을 사용하여 HTTP POST 요청이 "/api/user/signup" URL로 들어올 때 이 메소드를 실행하도록 합니다.
     // signup 메소드는 실제 회원가입을 처리하는 역할, SignyupRequestDto 객체를 인자로 받아 UserService의 signyp 메소드를 호출하여 회원가입을 처리
     @PostMapping("/user/signup")
-    public String signup(SignupRequestDto requestDto) {
+
+    // @Valid SignupRequestDto requestDto: 클라이언트로부터 받은 회원가입 데이터를 SignupRequestDto 객체로 변환하고,
+    // @Valid 어노테이션을 통해 유효성 검사를 수행합니다.
+    // BindingResult bindingResult: 유효성 검사 결과를 담는 객체입니다.
+    public String signup(@Valid SignupRequestDto requestDto, BindingResult bindingResult) {
+
+        // Validation 예외처리
+        // bindingResult.getFieldErrors()로 유효성 검사 중 발생한 모든 필드 에러를 가져옵니다.
+        List<FieldError> fieldErrors = bindingResult.getFieldErrors();
+        if (fieldErrors.size() > 0) {
+            // 각 필드 에러에 대해 로그를 출력, 에러가 발생한 필드명과 에러 메시지를 기록합니다.
+            for (FieldError fieldError : bindingResult.getFieldErrors()) {
+                log.error(fieldError.getField() + " 필드 : " + fieldError.getDefaultMessage());
+            }
+            return "redirect:/api/user/signup";
+        }
+
+
         // UserService의 signup 메소드를 호출하여 사용자 등록을 처리합니다.
         userService.signup(requestDto);
 
